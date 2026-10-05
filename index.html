@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CalcTick — Numbers & Time, Simplified</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+:root{
+  --bg:#080b13;
+  --panel:#111622;
+  --panel2:#171d2b;
+  --key:#1b2232;
+  --key-hover:#252e42;
+  --border:#2c354a;
+  --text:#f5f7ff;
+  --muted:#929dbb;
+  --accent:#7667ff;
+  --accent2:#5b4cf0;
+  --danger:#5a2c40;
+}
+
+body{
+  min-height:100vh;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+
+  background:
+    radial-gradient(circle at 10% 10%,rgba(74,89,190,.28),transparent 32%),
+    radial-gradient(circle at 90% 85%,rgba(110,65,175,.25),transparent 35%),
+    var(--bg);
+
+  padding:20px;
+}
+
+.app{
+  width:100%;
+  max-width:820px;
+  margin:auto;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.hero{
+  text-align:center;
+  padding:34px 10px 30px;
+}
+
+.logo{
+  width:65px;
+  height:65px;
+  margin:0 auto 15px;
+  border-radius:19px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:linear-gradient(135deg,var(--accent),#9b70ff);
+
+  font-size:29px;
+  font-weight:900;
+
+  box-shadow:0 12px 40px rgba(118,103,255,.25);
+}
+
+.hero h1{
+  font-size:clamp(42px,8vw,67px);
+  letter-spacing:-2px;
+  line-height:1;
+}
+
+.hero h1 span{
+  color:#9185ff;
+}
+
+.hero .heading{
+  margin-top:12px;
+  font-size:clamp(17px,3vw,22px);
+  font-weight:650;
+}
+
+.hero .subheading{
+  margin-top:7px;
+  color:var(--muted);
+  font-size:14px;
+}
+
+/* =========================
+   MAIN NAVIGATION
+========================= */
+
+.main-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.main-tab{
+  min-height:58px;
+
+  border:1px solid var(--border);
+  border-radius:16px;
+
+  background:rgba(18,23,36,.92);
+  color:#b8c0da;
+
+  font-size:17px;
+  font-weight:750;
+
+  cursor:pointer;
+
+  transition:.18s;
+}
+
+.main-tab:hover{
+  background:#1b2233;
+}
+
+.main-tab.active{
+  color:white;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-color:transparent;
+}
+
+/* =========================
+   PANELS
+========================= */
+
+.panel{
+  display:none;
+
+  background:rgba(16,21,33,.95);
+
+  border:1px solid var(--border);
+  border-radius:24px;
+
+  padding:21px;
+
+  box-shadow:0 25px 70px rgba(0,0,0,.25);
+}
+
+.panel.active{
+  display:block;
+}
+
+/* =========================
+   SUB TABS
+========================= */
+
+.sub-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+
+  padding:6px;
+  gap:5px;
+
+  background:#090d16;
+
+  border:1px solid #20283a;
+  border-radius:15px;
+
+  margin-bottom:20px;
+}
+
+.sub-tab{
+  min-height:45px;
+
+  border:0;
+  border-radius:10px;
+
+  background:transparent;
+  color:#8994b3;
+
+  font-size:15px;
+  font-weight:750;
+
+  cursor:pointer;
+}
+
+.sub-tab.active{
+  background:#20283b;
+  color:white;
+}
+
+/* =========================
+   CALCULATOR DISPLAY
+========================= */
+
+.calc-display{
+  min-height:115px;
+
+  padding:18px;
+
+  background:#080c14;
+
+  border:1px solid #273044;
+  border-radius:18px;
+
+  margin-bottom:12px;
+
+  text-align:right;
+}
+
+#expression{
+  min-height:25px;
+
+  color:#7f8aa8;
+
+  font-size:16px;
+
+  overflow-wrap:anywhere;
+}
+
+#answer{
+  margin-top:10px;
+
+  font-size:clamp(32px,8vw,46px);
+  font-weight:800;
+
+  overflow-wrap:anywhere;
+}
+
+/* =========================
+   CALCULATOR BUTTONS
+========================= */
+
+.basic-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+}
+
+.science-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+
+  margin-bottom:9px;
+}
+
+#scientificKeys{
+  display:none;
+}
+
+.key{
+  min-height:59px;
+
+  border:1px solid #30394e;
+  border-radius:14px;
+
+  background:var(--key);
+  color:white;
+
+  font-size:18px;
+  font-weight:600;
+
+  cursor:pointer;
+
+  transition:
+    transform .08s,
+    background .15s;
+}
+
+.key:hover{
+  background:var(--key-hover);
+}
+
+.key:active{
+  transform:scale(.95);
+}
+
+.key.operator{
+  background:#292654;
+  color:#c8c3ff;
+}
+
+.key.function{
+  background:#1b2940;
+  color:#bcd9ff;
+
+  font-size:15px;
+}
+
+.key.clear{
+  background:var(--danger);
+  color:#ffd5e4;
+}
+
+.key.equal{
+  border:0;
+
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+
+  font-size:22px;
+}
+
+/* =========================
+   TIMER INPUTS
+========================= */
+
+.time-inputs{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.time-inputs label{
+  color:#9da7c3;
+
+  font-size:13px;
+  font-weight:650;
+}
+
+.time-inputs input{
+  width:100%;
+
+  margin-top:6px;
+
+  padding:15px 8px;
+
+  border:1px solid #313a50;
+  border-radius:12px;
+
+  outline:none;
+
+  background:#090d16;
+  color:white;
+
+  text-align:center;
+
+  font-size:19px;
+}
+
+.time-inputs input:focus{
+  border-color:var(--accent);
+}
+
+/* =========================
+   TIME DISPLAY
+========================= */
+
+.big-time{
+  margin:40px 0;
+
+  text-align:center;
+
+  font-size:clamp(42px,10vw,76px);
+  font-weight:800;
+
+  letter-spacing:-2px;
+
+  font-variant-numeric:tabular-nums;
+}
+
+/* =========================
+   TIME CONTROLS
+========================= */
+
+.controls{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+
+  gap:9px;
+}
+
+.control{
+  min-width:105px;
+
+  padding:14px 21px;
+
+  border:1px solid #343d54;
+  border-radius:13px;
+
+  background:#1b2232;
+  color:white;
+
+  font-size:16px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:.15s;
+}
+
+.control:hover{
+  background:#252e42;
+}
+
+.control.primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-color:transparent;
+}
+
+.control.danger{
+  background:#4b2939;
+}
+
+/* =========================
+   STOPWATCH
+========================= */
+
+#stopwatchArea{
+  display:none;
+}
+
+#laps{
+  width:100%;
+  max-width:460px;
+
+  margin:25px auto 0;
+}
+
+.lap{
+  display:flex;
+  justify-content:space-between;
+
+  padding:11px 5px;
+
+  border-bottom:1px solid #293145;
+
+  color:#c1c9df;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+  text-align:center;
+
+  padding:22px 10px;
+
+  color:#626e8d;
+
+  font-size:12px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:600px){
+
+  body{
+    padding:10px;
+  }
+
+  .hero{
+    padding-top:25px;
+  }
+
+  .panel{
+    padding:14px;
+    border-radius:19px;
+  }
+
+  .science-grid{
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .key{
+    min-height:56px;
+  }
+
+  .controls{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+
+  .control{
+    width:100%;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- ================= HEADER ================= -->
+
+<header class="hero">
+
+  <div class="logo">CT</div>
+
+  <h1>Calc<span>Tick</span></h1>
+
+  <div class="heading">
+    Numbers & Time, Simplified.
+  </div>
+
+  <div class="subheading">
+    Calculate smarter. Time anything.
+  </div>
+
+</header>
+
+
+<!-- ================= MAIN NAV ================= -->
+
+<div class="main-tabs">
+
+  <button
+    id="calculatorMain"
+    class="main-tab active"
+    onclick="openMain('calculator')">
+
+    Calculator
+
+  </button>
+
+  <button
+    id="timeMain"
+    class="main-tab"
+    onclick="openMain('time')">
+
+    Time
+
+  </button>
+
+</div>
+
+
+<!-- ======================================================
+     CALCULATOR
+====================================================== -->
+
+<section id="calculatorPanel" class="panel active">
+
+<div class="sub-tabs">
+
+  <button
+    id="basicTab"
+    class="sub-tab active"
+    onclick="setCalculatorMode('basic')">
+
+    Basic
+
+  </button>
+
+  <button
+    id="scientificTab"
+    class="sub-tab"
+    onclick="setCalculatorMode('scientific')">
+
+    Scientific
+
+  </button>
+
+</div>
+
+
+<!-- DISPLAY -->
+
+<div class="calc-display">
+
+  <div id="expression"></div>
+
+  <div id="answer">0</div>
+
+</div>
+
+
+<!-- SCIENTIFIC KEYS -->
+
+<div id="scientificKeys">
+
+<div class="science-grid">
+
+<button class="key function" onclick="addFunction('sin(')">sin</button>
+
+<button class="key function" onclick="addFunction('cos(')">cos</button>
+
+<button class="key function" onclick="addFunction('tan(')">tan</button>
+
+<button class="key function" onclick="addFunction('sqrt(')">√</button>
+
+<button class="key function" onclick="addValue('π')">π</button>
+
+
+<button class="key function" onclick="addFunction('asin(')">sin⁻¹</button>
+
+<button class="key function" onclick="addFunction('acos(')">cos⁻¹</button>
+
+<button class="key function" onclick="addFunction('atan(')">tan⁻¹</button>
+
+<button class="key function" onclick="addFunction('log(')">log</button>
+
+<button class="key function" onclick="addFunction('ln(')">ln</button>
+
+
+<button class="key function" onclick="square()">x²</button>
+
+<button class="key function" onclick="addValue('^')">xʸ</button>
+
+<button class="key function" onclick="reciprocal()">1/x</button>
+
+<button class="key function" onclick="addValue('e')">e</button>
+
+<button class="key function" onclick="factorial()">n!</button>
+
+
+<button class="key function" onclick="addValue('(')">(</button>
+
+<button class="key function" onclick="addValue(')')">)</button>
+
+<button class="key function" onclick="changeSign()">±</button>
+
+<button class="key function" onclick="randomNumber()">RAND</button>
+
+<button class="key function" onclick="addValue('%')">%</button>
+
+</div>
+
+</div>
+
+
+<!-- BASIC KEYS -->
+
+<div class="basic-grid">
+
+<button class="key clear" onclick="clearCalculator()">AC</button>
+
+<button class="key" onclick="backspace()">⌫</button>
+
+<button class="key" onclick="addValue('%')">%</button>
+
+<button class="key operator" onclick="addValue('÷')">÷</button>
+
+
+<button class="key" onclick="addValue('7')">7</button>
+
+<button class="key" onclick="addValue('8')">8</button>
+
+<button class="key" onclick="addValue('9')">9</button>
+
+<button class="key operator" onclick="addValue('×')">×</button>
+
+
+<button class="key" onclick="addValue('4')">4</button>
+
+<button class="key" onclick="addValue('5')">5</button>
+
+<button class="key" onclick="addValue('6')">6</button>
+
+<button class="key operator" onclick="addValue('-')">−</button>
+
+
+<button class="key" onclick="addValue('1')">1</button>
+
+<button class="key" onclick="addValue('2')">2</button>
+
+<button class="key" onclick="addValue('3')">3</button>
+
+<button class="key operator" onclick="addValue('+')">+</button>
+
+
+<button class="key" onclick="changeSign()">±</button>
+
+<button class="key" onclick="addValue('0')">0</button>
+
+<button class="key" onclick="addValue('.')">.</button>
+
+<button class="key equal" onclick="calculate()">=</button>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     TIME
+====================================================== -->
+
+<section id="timePanel" class="panel">
+
+<div class="sub-tabs">
+
+  <button
+    id="timerTab"
+    class="sub-tab active"
+    onclick="setTimeMode('timer')">
+
+    Timer
+
+  </button>
+
+  <button
+    id="stopwatchTab"
+    class="sub-tab"
+    onclick="setTimeMode('stopwatch')">
+
+    Stopwatch
+
+  </button>
+
+</div>
+
+
+<!-- TIMER -->
+
+<div id="timerArea">
+
+<div class="time-inputs">
+
+<label>
+Hours
+<input id="hours" type="number" min="0" max="99" value="0">
+</label>
+
+<label>
+Minutes
+<input id="minutes" type="number" min="0" max="59" value="1">
+</label>
+
+<label>
+Seconds
+<input id="seconds" type="number" min="0" max="59" value="0">
+</label>
+
+</div>
+
+
+<div id="timerDisplay" class="big-time">
+
+00:01:00
+
+</div>
+
+
+<div class="controls">
+
+<button
+class="control primary"
+onclick="startTimer()">
+
+Start
+
+</button>
+
+
+<button
+class="control"
+onclick="pauseTimer()">
+
+Pause
+
+</button>
+
+
+<button
+class="control danger"
+onclick="resetTimer()">
+
+Reset
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- STOPWATCH -->
+
+<div id="stopwatchArea">
+
+<div id="stopwatchDisplay" class="big-time">
+
+00:00:00.0
+
+</div>
+
+
+<div class="controls">
+
+<button
+class="control primary"
+onclick="startStopwatch()">
+
+Start
+
+</button>
+
+
+<button
+class="control"
+onclick="pauseStopwatch()">
+
+Pause
+
+</button>
+
+
+<button
+class="control"
+onclick="addLap()">
+
+Lap
+
+</button>
+
+
+<button
+class="control danger"
+onclick="resetStopwatch()">
+
+Reset
+
+</button>
+
+</div>
+
+
+<div id="laps"></div>
+
+</div>
+
+</section>
+
+
+<footer>
+
+CalcTick • Numbers & Time, Simplified.
+
+</footer>
+
+</div>
+
+
+<script>
+
+/* ======================================================
+   MAIN NAVIGATION
+====================================================== */
+
+function openMain(section){
+
+const calculatorPanel =
+document.getElementById("calculatorPanel");
+
+const timePanel =
+document.getElementById("timePanel");
+
+const calculatorButton =
+document.getElementById("calculatorMain");
+
+const timeButton =
+document.getElementById("timeMain");
+
+
+if(section==="calculator"){
+
+calculatorPanel.classList.add("active");
+
+timePanel.classList.remove("active");
+
+
+calculatorButton.classList.add("active");
+
+timeButton.classList.remove("active");
+
+}else{
+
+timePanel.classList.add("active");
+
+calculatorPanel.classList.remove("active");
+
+
+timeButton.classList.add("active");
+
+calculatorButton.classList.remove("active");
+
+}
+
+}
+
+
+/* ======================================================
+   CALCULATOR MODE
+====================================================== */
+
+function setCalculatorMode(mode){
+
+const scientific =
+document.getElementById("scientificKeys");
+
+const basicTab =
+document.getElementById("basicTab");
+
+const scientificTab =
+document.getElementById("scientificTab");
+
+
+if(mode==="scientific"){
+
+scientific.style.display="block";
+
+scientificTab.classList.add("active");
+
+basicTab.classList.remove("active");
+
+}else{
+
+scientific.style.display="none";
+
+basicTab.classList.add("active");
+
+scientificTab.classList.remove("active");
+
+}
+
+}
+
+
+/* ======================================================
+   CALCULATOR
+====================================================== */
+
+let expression="";
+
+
+function updateCalculator(){
+
+document.getElementById("expression")
+.textContent=expression;
+
+
+document.getElementById("answer")
+.textContent=
+expression || "0";
+
+}
+
+
+function addValue(value){
+
+expression+=value;
+
+updateCalculator();
+
+}
+
+
+function addFunction(func){
+
+expression+=func;
+
+updateCalculator();
+
+}
+
+
+function clearCalculator(){
+
+expression="";
+
+updateCalculator();
+
+}
+
+
+function backspace(){
+
+expression=
+expression.slice(0,-1);
+
+updateCalculator();
+
+}
+
+
+function square(){
+
+if(!expression)return;
+
+
+expression=
+"("+expression+")^2";
+
+
+updateCalculator();
+
+}
+
+
+function reciprocal(){
+
+if(!expression)return;
+
+
+expression=
+"1/("+expression+")";
+
+
+updateCalculator();
+
+}
+
+
+function changeSign(){
+
+if(!expression){
+
+expression="-";
+
+}else{
+
+expression=
+"-("+expression+")";
+
+}
+
+
+updateCalculator();
+
+}
+
+
+function randomNumber(){
+
+expression=
+String(
+Math.round(
+Math.random()*1000000
+)/1000000
+);
+
+
+updateCalculator();
+
+}
+
+
+/* ======================================================
+   FACTORIAL
+====================================================== */
+
+function factorialValue(n){
+
+if(
+n<0 ||
+!Number.isInteger(n) ||
+n>170
+){
+
+throw new Error();
+
+}
+
+
+let result=1;
+
+
+for(let i=2;i<=n;i++){
+
+result*=i;
+
+}
+
+
+return result;
+
+}
+
+
+function factorial(){
+
+try{
+
+if(!expression)return;
+
+
+const value=
+evaluateExpression(expression);
+
+
+const result=
+factorialValue(value);
+
+
+expression=
+String(result);
+
+
+document.getElementById("expression")
+.textContent="";
+
+
+document.getElementById("answer")
+.textContent=result;
+
+
+}catch{
+
+document.getElementById("answer")
+.textContent="Error";
+
+}
+
+}
+
+
+/* ======================================================
+   CALCULATOR ENGINE
+====================================================== */
+
+function evaluateExpression(input){
+
+let x=input;
+
+
+/* Operators */
+
+x=x
+.replaceAll("×","*")
+.replaceAll("÷","/")
+.replaceAll("^","**");
+
+
+/* Constants */
+
+x=x
+.replaceAll("π","Math.PI");
+
+
+x=x.replace(
+/\b(?<![A-Za-z.])e\b/g,
+"Math.E"
+);
+
+
+/* Functions */
+
+x=x
+.replaceAll("sqrt(","Math.sqrt(")
+.replaceAll("asin(","Math.asin(")
+.replaceAll("acos(","Math.acos(")
+.replaceAll("atan(","Math.atan(")
+.replaceAll("sin(","Math.sin(")
+.replaceAll("cos(","Math.cos(")
+.replaceAll("tan(","Math.tan(")
+.replaceAll("log(","Math.log10(")
+.replaceAll("ln(","Math.log(");
+
+
+/* Safety validation */
+
+if(
+!/^[0-9+\-*/().%\sA-Za-z_,]*$/.test(x)
+){
+
+throw new Error();
+
+}
+
+
+const result=
+Function(
+'"use strict"; return ('+x+')'
+)();
+
+
+if(!Number.isFinite(result)){
+
+throw new Error();
+
+}
+
+
+return result;
+
+}
+
+
+function calculate(){
+
+try{
+
+if(!expression)return;
+
+
+let result=
+evaluateExpression(expression);
+
+
+result=
+Math.round(
+(result+Number.EPSILON)*1e12
+)/1e12;
+
+
+document.getElementById("expression")
+.textContent=expression;
+
+
+document.getElementById("answer")
+.textContent=result;
+
+
+expression=
+String(result);
+
+
+}catch{
+
+document.getElementById("answer")
+.textContent="Error";
+
+}
+
+}
+
+
+/* ======================================================
+   TIMER / STOPWATCH SWITCH
+====================================================== */
+
+function setTimeMode(mode){
+
+const timerArea =
+document.getElementById("timerArea");
+
+const stopwatchArea =
+document.getElementById("stopwatchArea");
+
+const timerTab =
+document.getElementById("timerTab");
+
+const stopwatchTab =
+document.getElementById("stopwatchTab");
+
+
+if(mode==="timer"){
+
+timerArea.style.display="block";
+
+stopwatchArea.style.display="none";
+
+
+timerTab.classList.add("active");
+
+stopwatchTab.classList.remove("active");
+
+}else{
+
+timerArea.style.display="none";
+
+stopwatchArea.style.display="block";
+
+
+stopwatchTab.classList.add("active");
+
+timerTab.classList.remove("active");
+
+}
+
+}
+
+
+/* ======================================================
+   TIMER
+====================================================== */
+
+let timerInterval=null;
+
+let remainingSeconds=60;
+
+
+function readTimer(){
+
+let hours=
+Number(
+document.getElementById("hours").value
+)||0;
+
+
+let minutes=
+Number(
+document.getElementById("minutes").value
+)||0;
+
+
+let seconds=
+Number(
+document.getElementById("seconds").value
+)||0;
+
+
+hours=
+Math.max(
+0,
+Math.min(99,hours)
+);
+
+
+minutes=
+Math.max(
+0,
+Math.min(59,minutes)
+);
+
+
+seconds=
+Math.max(
+0,
+Math.min(59,seconds)
+);
+
+
+return Math.floor(
+hours*3600+
+minutes*60+
+seconds
+);
+
+}
+
+
+function formatTimer(total){
+
+total=
+Math.max(
+0,
+Math.floor(total)
+);
+
+
+const hours=
+Math.floor(total/3600);
+
+
+const minutes=
+Math.floor(
+(total%3600)/60
+);
+
+
+const seconds=
+total%60;
+
+
+return (
+
+String(hours)
+.padStart(2,"0")
+
++":"+ 
+
+String(minutes)
+.padStart(2,"0")
+
++":"+ 
+
+String(seconds)
+.padStart(2,"0")
+
+);
+
+}
+
+
+function syncTimer(){
+
+if(timerInterval)return;
+
+
+remainingSeconds=
+readTimer();
+
+
+document.getElementById("timerDisplay")
+.textContent=
+formatTimer(remainingSeconds);
+
+}
+
+
+document.getElementById("hours")
+.addEventListener(
+"input",
+syncTimer
+);
+
+
+document.getElementById("minutes")
+.addEventListener(
+"input",
+syncTimer
+);
+
+
+document.getElementById("seconds")
+.addEventListener(
+"input",
+syncTimer
+);
+
+
+function startTimer(){
+
+if(timerInterval)return;
+
+
+if(remainingSeconds<=0){
+
+remainingSeconds=
+readTimer();
+
+}
+
+
+if(remainingSeconds<=0)return;
+
+
+timerInterval=
+setInterval(()=>{
+
+remainingSeconds--;
+
+
+document.getElementById("timerDisplay")
+.textContent=
+formatTimer(remainingSeconds);
+
+
+if(remainingSeconds<=0){
+
+clearInterval(timerInterval);
+
+
+timerInterval=null;
+
+
+document.getElementById("timerDisplay")
+.textContent="TIME'S UP!";
+
+}
+
+},1000);
+
+}
+
+
+function pauseTimer(){
+
+clearInterval(timerInterval);
+
+timerInterval=null;
+
+}
+
+
+function resetTimer(){
+
+pauseTimer();
+
+
+remainingSeconds=
+readTimer();
+
+
+document.getElementById("timerDisplay")
+.textContent=
+formatTimer(remainingSeconds);
+
+}
+
+
+/* ======================================================
+   STOPWATCH
+====================================================== */
+
+let stopwatchInterval=null;
+
+let stopwatchStart=0;
+
+let stopwatchElapsed=0;
+
+let lapNumber=0;
+
+
+function currentStopwatch(){
+
+return stopwatchElapsed+
+(
+stopwatchInterval
+?
+performance.now()-stopwatchStart
+:
+0
+);
+
+}
+
+
+function formatStopwatch(ms){
+
+const tenths=
+Math.floor(ms/100);
+
+
+const decimal=
+tenths%10;
+
+
+const seconds=
+Math.floor(tenths/10)%60;
+
+
+const minutes=
+Math.floor(tenths/600)%60;
+
+
+const hours=
+Math.floor(tenths/36000);
+
+
+return (
+
+String(hours)
+.padStart(2,"0")
+
++":"+ 
+
+String(minutes)
+.padStart(2,"0")
+
++":"+ 
+
+String(seconds)
+.padStart(2,"0")
+
++"."+decimal
+
+);
+
+}
+
+
+function startStopwatch(){
+
+if(stopwatchInterval)return;
+
+
+stopwatchStart=
+performance.now();
+
+
+stopwatchInterval=
+setInterval(()=>{
+
+document.getElementById("stopwatchDisplay")
+.textContent=
+formatStopwatch(
+currentStopwatch()
+);
+
+},100);
+
+}
+
+
+function pauseStopwatch(){
+
+if(!stopwatchInterval)return;
+
+
+stopwatchElapsed+=
+performance.now()-
+stopwatchStart;
+
+
+clearInterval(
+stopwatchInterval
+);
+
+
+stopwatchInterval=null;
+
+
+document.getElementById("stopwatchDisplay")
+.textContent=
+formatStopwatch(
+stopwatchElapsed
+);
+
+}
+
+
+function resetStopwatch(){
+
+clearInterval(
+stopwatchInterval
+);
+
+
+stopwatchInterval=null;
+
+stopwatchElapsed=0;
+
+lapNumber=0;
+
+
+document.getElementById("stopwatchDisplay")
+.textContent=
+"00:00:00.0";
+
+
+document.getElementById("laps")
+.innerHTML="";
+
+}
+
+
+function addLap(){
+
+const current=
+currentStopwatch();
+
+
+if(current<=0)return;
+
+
+lapNumber++;
+
+
+const lap=
+document.createElement("div");
+
+
+lap.className="lap";
+
+
+const number=
+document.createElement("span");
+
+number.textContent=
+"Lap "+lapNumber;
+
+
+const time=
+document.createElement("span");
+
+time.textContent=
+formatStopwatch(current);
+
+
+lap.appendChild(number);
+
+lap.appendChild(time);
+
+
+document.getElementById("laps")
+.prepend(lap);
+
+}
+
+
+/* ======================================================
+   INITIALIZE
+====================================================== */
+
+updateCalculator();
+
+syncTimer();
+
+</script>
+
+</body>
+</html>
